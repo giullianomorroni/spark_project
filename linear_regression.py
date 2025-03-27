@@ -3,7 +3,7 @@
 # encoding=utf8
 
 from pyspark.sql import SparkSession
-from pyspark.ml.regression import LinearRegression
+from pyspark.ml.regression import LinearRegression, RandomForestRegressor
 from pyspark.ml.evaluation import RegressionEvaluator
 from pyspark.ml.feature import VectorAssembler
 
@@ -24,4 +24,16 @@ train, test = features.randomSplit([0.7, 0.3])
 
 model = LinearRegression(featuresCol='Features', labelCol='HP').fit(train)
 
-model.transform(test).show(5)
+prediction = model.transform(test)
+
+prediction.show(5)
+
+model_eval = RegressionEvaluator(predictionCol='prediction', labelCol='HP')
+
+rmse = model_eval.evaluate(prediction)
+print('Raiz quadrada do erro-médio (LinearRegression):', rmse)
+
+model = RandomForestRegressor(featuresCol='Features', labelCol='HP').fit(train)
+prediction = model.transform(test)
+rmse = model_eval.evaluate(prediction)
+print('Raiz quadrada do erro-médio (RandomForestRegressor):', rmse)
